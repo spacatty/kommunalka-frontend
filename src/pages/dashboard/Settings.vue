@@ -51,12 +51,14 @@ const home_save = async () => {
           <q-toggle size="64px" v-model="toggle_dark_state" checked-icon="check" color="green" unckecked-color="red"
             unchecked-icon="clear" />
         </div>
-        <div v-if="userStore.user.id == userStore.user.home.owner.id" class="item_row flex items-center justify-between mt-4 mb-8">
+        <div v-if="userStore.user.id == userStore.user?.home?.owner?.id"
+          class="item_row flex items-center justify-between mt-4 mb-8">
           <p class="text-xl text-bold">Настройки дома</p>
           <q-btn @click="home_settings_dialog_toggle = true" class="h-8 w-20" outline icon="home" color="green"
             unckecked-color="green" unchecked-icon="clear" />
 
-          <q-dialog v-if="userStore.user.id == userStore.user.home.owner.id" v-model="home_settings_dialog_toggle" persistent>
+          <q-dialog v-if="userStore.user.id == userStore.user.home.owner.id" v-model="home_settings_dialog_toggle"
+            persistent>
             <q-card>
               <q-card-section>
                 <div class="text-h6">Настройки дома</div>
@@ -71,6 +73,8 @@ const home_save = async () => {
                   <input type="file" accept="image/*"
                     class="file_input my-4 outline-none file:py-2 file:mr-4 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
                   <q-input value label="Название дома" v-model="home_state_copy.title" class="w-full my-2"
+                    color="white" />
+                  <q-input value label="Хеш дома" readonly v-model="home_state_copy.home_hash" class="w-full my-2"
                     color="white" />
                   <q-input value label="Новый пароль" v-model="new_password" class="w-full my-2" color="white" />
                   <q-input value label="Подтверждение пароля" v-model="new_password_confirmation" class="w-full my-2"

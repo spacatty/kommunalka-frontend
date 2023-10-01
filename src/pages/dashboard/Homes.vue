@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref } from "vue"
 import { useQuasar } from 'quasar'
 import { useUserStore } from "stores/user";
 import { api_url } from 'assets/variables'
@@ -63,10 +63,13 @@ const add_new_task_title = ref(null)
 const add_new_task_selected_period = ref(null)
 
 const new_task_add = async () => {
+  let responsible = userStore.user.id
+  if (userStore.user.home.neighbors !== undefined) { responsible = add_new_task_selected_item.value }
+
   await userStore.add_new_task(
     {
       title: add_new_task_title.value,
-      responsible: add_new_task_selected_item.value.value,
+      responsible: responsible,
       deadline: new Date(add_new_task_date.value),
       period: add_new_task_selected_period?.value?.value ?? null,
       done: false,
@@ -242,8 +245,9 @@ setInterval(() => {
                   </q-icon>
                 </template>
               </q-input>
-              <q-select color="white" class="my-4" v-model="add_new_task_selected_item"
-                :options="[...userStore.user.home.neighbors.map(x => { return { label: x.name, value: x.id } }), { label: userStore.user.name, value: userStore.user.id }]"
+              <q-select v-if="userStore?.user?.home?.neighbors" color="white" class="my-4"
+                v-model="add_new_task_selected_item"
+                :options="[...userStore?.user?.home?.neighbors?.map(x => { return { label: x.name, value: x.id } }), { label: userStore.user.name, value: userStore.user.id }]"
                 label="Ответственный">
 
               </q-select>

@@ -1,16 +1,14 @@
 <template>
   <div class="page_container !h-screen">
-    <div class="form_container">
+    <form @submit.prevent="login_action()" class="form_container">
       <h2 class="text-4xl mb-6 text-center">Коммуналка</h2>
-      <q-input filled bg-color="gray" color="white" v-model="email" label="Электроонная почта" />
-      <q-input filled bg-color="gray" color="white" v-model="password" class="q-mt-md" label="Пароль" type="password" />
-      <q-btn @click="login_action()" outline class="q-mt-md action_button" color="white" text-color="white"
-        label="Войти" />
-      <q-btn @click="$router.push('/dash/tasks')" outline class="q-mt-md action_button" color="white" text-color="white"
-        label="Тест" />
+      <q-input required filled bg-color="gray" color="white" v-model="email" label="Электронная почта" type="email" />
+      <q-input required filled bg-color="gray" color="white" v-model="password" class="q-mt-md" label="Пароль"
+        type="password" />
+      <q-btn type="submit" outline class="q-mt-md action_button" color="white" text-color="white" label="Войти" />
       <span class="q-mt-md text-center">Нет аккаунта? <span @click="$router.push('/register')"
           style="text-decoration: underline; cursor: pointer;">Зарегистрироваться.</span></span>
-    </div>
+    </form>
   </div>
 </template>
 

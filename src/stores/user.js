@@ -25,7 +25,7 @@ const wrapped_request = async (method, params, success_notify_options) => {
           message: `Прозошла ошибка: ${error.response.data.errors[0].message}`,
           type: 'negative',
         })
-      if (error.response.data.errors[0].message.includes("not allowed")) {
+      if (error.response.data.errors[0].message.includes("not allowed") || error.response.data.errors[0].message.includes("нет права")) {
         localStorage.removeItem("user_store")
         router.go({ name: "login" })
       }
@@ -65,15 +65,13 @@ export const useUserStore = defineStore('user', {
           loginAttempts: 0
         }`)
       if (body == null) { return }
-      if (res.status == 201 && res.data.message.includes("successfully created")) {
-        Notify.create(
-          {
-            position: 'top',
-            message: 'Вы успешно зарегистрированы',
-            type: 'positive',
-          })
-        this.login({ email, password })
-      }
+      Notify.create(
+        {
+          position: 'top',
+          message: 'Вы успешно зарегистрированы',
+          type: 'positive',
+        })
+      this.login({ email, password })
 
     },
     async login({ email, password }) {
@@ -137,12 +135,12 @@ export const useUserStore = defineStore('user', {
         Notify.create({ type: 'negative', position: 'top', message: "Неверные данные для входа" })
         return
       }
-      let current_neighbors_list = body[0].neighbors
+      let current_neighbors_list = body[0].neighbors ?? []
       current_neighbors_list.push(this.$state.user.id)
       current_neighbors_list = Array.from(new Set(current_neighbors_list))
 
       body = await wrapped_request('patch', `'/api/homes/${body[0].id}', { neighbors: ${JSON.stringify(current_neighbors_list)} }`)
-      if (!body.message.includes("successfully")) {
+      if (!body.status == 200) {
         Notify.create({ type: 'negative', position: 'top', message: "Ошибка при прикреплении к дому" })
         return
       }
@@ -187,7 +185,7 @@ export const useUserStore = defineStore('user', {
               message: `Прозошла ошибка: ${error.response.data.errors[0].message}`,
               type: 'negative',
             })
-          if (error.response.data.errors[0].message.includes("not allowed")) {
+          if (error.response.data.errors[0].message.includes("not allowed") || error.response.data.errors[0].message.includes("нет права")) {
             localStorage.removeItem("user_store")
             router.push({ name: "login" })
           }
@@ -238,7 +236,7 @@ export const useUserStore = defineStore('user', {
     async task_mark_done({ id }) {
       let body = (await wrapped_request('patch', `'/api/tasks/${id}', { done: "true" }`))
       if (body == null) { return }
-      if (!body.message.includes("successfully")) {
+      if (!body.status == 200) {
         Notify.create({ type: 'negative', position: 'top', message: "Ошибка при изменении статуса задачи" })
         return
       }
@@ -249,15 +247,15 @@ export const useUserStore = defineStore('user', {
         message: 'Статус задачи успешно изменен'
       })
     },
-    async mark_task_notification_scheduled({task_id, day}) {
+    async mark_task_notification_scheduled({ task_id, day }) {
       let body;
-      if(day) {
+      if (day) {
         body = (await wrapped_request('patch', `'/api/tasks/${task_id}', { scheduled_day: "true" }`))
       } else {
         body = (await wrapped_request('patch', `'/api/tasks/${task_id}', { scheduled_hour: "true" }`))
       }
       if (body == null) { return }
-      if (!body.message.includes("successfully")) {
+      if (!body.status == 200) {
         return
       }
     }
