@@ -4,7 +4,7 @@
       <h2 class="text-4xl mb-6 text-center">Коммуналка</h2>
       <q-input required filled bg-color="gray" color="white" v-model="name" label="Имя" />
       <q-input required type="email" filled bg-color="gray" color="white" v-model="email" class="q-mt-md"
-        label="Электроонная почта" />
+        label="Электронная почта" />
       <q-input required filled bg-color="gray" color="white" v-model="password" class="q-mt-md" label="Пароль"
         type="password" />
       <q-btn type="submit" outline class="q-mt-md action_button" color="white" text-color="white"
