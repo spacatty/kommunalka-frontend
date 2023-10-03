@@ -107,8 +107,20 @@ export const useUserStore = defineStore('user', {
       this.$state.user = null
       this.router.push('/')
     },
-    async home_create({ title, address, password, hash }) {
-      let body = await wrapped_request('post', `'/api/homes', { title: ${JSON.stringify(title)}, address: ${JSON.stringify(address)}, password: ${JSON.stringify(password)}, home_hash: ${JSON.stringify(hash)}}`)
+    async home_create({ title, address, password, hash, image }) {
+      let patch_data = "{"
+
+      if (image) {
+        let media_id = await this.upload_image({ image })
+        patch_data = patch_data.concat(`image: ${JSON.stringify(media_id)},`)
+      }
+      patch_data = patch_data.concat(`title: ${JSON.stringify(title)},`)
+      patch_data = patch_data.concat(`address: ${JSON.stringify(title)},`)
+      patch_data = patch_data.concat(`password: ${JSON.stringify(title)},`)
+      patch_data = patch_data.concat(`home_hash: ${JSON.stringify(title)},`)
+      patch_data = patch_data.concat("}")
+
+      let body = await wrapped_request('post', `'/api/homes', ${patch_data}`)
       if (body == null) { return }
       Notify.create(
         {
