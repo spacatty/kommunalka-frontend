@@ -1,10 +1,9 @@
 {
-  "appId": "org.capacitor.quasar.app",
-  "appName": "Quasar App",
+  "appId": "org.kommunalka.app",
+  "appName": "Коммуналка",
   "webDir": "www",
   "server": {
-    "androidScheme": "https",
-    "url": "http://192.168.1.3:9500"
+    "androidScheme": "https"
   },
   "plugins": {
     "LocalNotifications": {

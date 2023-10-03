@@ -23,8 +23,8 @@ const email = ref("")
 const password = ref("")
 const { user } = storeToRefs(useUserStore())
 
-const login_action = () => {
-  userStore.login({ email: email.value, password: password.value })
+const login_action = async () => {
+  await userStore.login({ email: email.value, password: password.value })
 }
 
 

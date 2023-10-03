@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 import { Notify } from 'quasar'
 
-
-const router = useRouter()
+let router;
+let token;
+// const router = useRouter()
 
 const isValidSHA1 = (s) => {
   return /[a-fA-F0-9]{40}$/.test(s)
@@ -12,6 +14,7 @@ const isValidSHA1 = (s) => {
 
 const wrapped_request = async (method, params, success_notify_options) => {
   try {
+    if (token) { api.defaults.headers.common.Authorization = "JWT " + token }
     let res = await eval(`api.${method}(${params})`)
     success_notify_options ? Notify.create(success_notify_options) : 0
     return res.data
@@ -50,9 +53,11 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async load_state() {
+      router = useRouter()
       if (localStorage.getItem("user_store") !== null) {
         if (localStorage.getItem("user_store").user !== null) {
           this.$state.user = JSON.parse(localStorage.getItem("user_store")).user
+          token = this.$state.user.token
         }
       }
     },
@@ -84,6 +89,8 @@ export const useUserStore = defineStore('user', {
           type: 'positive',
         })
       this.$state.user = body.user
+      this.$state.user.token = body.token
+      token = body.token
       await this.home_get()
       // await this.user_tasks_get()
       this.router.push({ name: "dash_tasks" })

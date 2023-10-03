@@ -14,9 +14,6 @@ import routes from './routes'
  * with the Router instance.
  */
 
-const securered = (to) => {
-}
-
 export default route(function ({ store }) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory

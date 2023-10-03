@@ -12,7 +12,7 @@ Array.prototype.random = function () {
 }
 
 const userStore = useUserStore()
-userStore.home_get()
+await userStore.home_get()
 
 const $q = useQuasar()
 
@@ -64,7 +64,7 @@ const add_new_task_selected_period = ref(null)
 
 const new_task_add = async () => {
   let responsible = userStore.user.id
-  if (userStore.user.home.neighbors !== undefined) { responsible = add_new_task_selected_item.value }
+  if (userStore.user.home.neighbors !== undefined) { responsible = add_new_task_selected_item.value.value }
 
   await userStore.add_new_task(
     {
