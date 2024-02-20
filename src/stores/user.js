@@ -14,25 +14,25 @@ const isValidSHA1 = (s) => {
 
 const wrapped_request = async (method, params, success_notify_options) => {
   try {
-    if (token) { api.defaults.headers.common.Authorization = "JWT " + token }
-    let res = await eval(`api.${method}(${params})`)
-    success_notify_options ? Notify.create(success_notify_options) : 0
-    return res.data
+    if (token) { api.defaults.headers.common.Authorization = "JWT " + token } // если пользователь авторизован и есть токен, то крепим его к запросу
+    let res = await eval(`api.${method}(${params})`) // eval - функция для выполнения js из строки, тут вызывается динамически сконструированный метод, например api.get("/posts")
+    success_notify_options ? Notify.create(success_notify_options) : 0 // если предоставлены опции для уведомления об успешной отправке запроса, то показываем его
+    return res.data // возвращаем тело ответа
   } catch (error) {
     console.log(`[WR ERROR] ⬇`);
     console.log(error);
-    if (error?.response?.data?.errors[0]?.message) {
+    if (error?.response?.data?.errors[0]?.message) { // если ошибка апишная (от expressjs)
       Notify.create(
         {
           position: 'top',
           message: `Прозошла ошибка: ${error.response.data.errors[0].message}`,
           type: 'negative',
         })
-      if (error.response.data.errors[0].message.includes("not allowed") || error.response.data.errors[0].message.includes("нет права")) {
-        localStorage.removeItem("user_store")
-        router.go({ name: "login" })
+      if (error.response.data.errors[0].message.includes("not allowed") || error.response.data.errors[0].message.includes("нет права")) { // если токен пользователя не действителен
+        localStorage.removeItem("user_store") // удаляем сохраненный в localstorage объект пользователя
+        router.go({ name: "login" }) // перекидываем на страницу входа
       }
-    } else {
+    } else { // любая другая ошибка в ходе выполнения запроса
       Notify.create(
         {
           position: 'top',
@@ -80,20 +80,20 @@ export const useUserStore = defineStore('user', {
 
     },
     async login({ email, password }) {
-      let body = await wrapped_request('post', `'/api/users/login', {email: ${JSON.stringify(email)}, password: ${JSON.stringify(password)}}`)
-      if (body == null) { return }
-      Notify.create(
+      let body = await wrapped_request('post', `'/api/users/login', {email: ${JSON.stringify(email)}, password: ${JSON.stringify(password)}}`) // отправка запроса через wrapped_req
+      if (body == null) { return } // если ответ null, дальше не продолжаем (ошибку покажет wrapped_request)
+      Notify.create( // если ответ всё-таки пришёл, то показываем приветственное соощбение
         {
           position: 'top',
           message: `Добро пожаловать, ${body.user.name}`,
           type: 'positive',
         })
-      this.$state.user = body.user
-      this.$state.user.token = body.token
-      token = body.token
-      await this.home_get()
+      this.$state.user = body.user // записываем объект пользователя в состояние приложения 
+      this.$state.user.token = body.token // аналогично пишем токен
+      token = body.token // устанавливаем токен для дальнейшего прикрепления к запросам во wrapped_request
+      await this.home_get() // проверяем наличие или прикрепление к дому
       // await this.user_tasks_get()
-      this.router.push({ name: "dash_tasks" })
+      this.router.push({ name: "dash_tasks" }) // направляем в интерфейс авторизованного пользователя в задачи
     },
     async logout() {
       let body = await wrapped_request('post', "'/api/users/logout'")
@@ -107,7 +107,7 @@ export const useUserStore = defineStore('user', {
       this.$state.user = null
       this.router.push('/')
     },
-    async home_create({ title, address, password, hash, image }) {
+    async home_create({ title, address, password, home_hash, image }) {
       let patch_data = "{"
 
       if (image) {
@@ -115,11 +115,10 @@ export const useUserStore = defineStore('user', {
         patch_data = patch_data.concat(`image: ${JSON.stringify(media_id)},`)
       }
       patch_data = patch_data.concat(`title: ${JSON.stringify(title)},`)
-      patch_data = patch_data.concat(`address: ${JSON.stringify(title)},`)
-      patch_data = patch_data.concat(`password: ${JSON.stringify(title)},`)
-      patch_data = patch_data.concat(`home_hash: ${JSON.stringify(title)},`)
+      patch_data = patch_data.concat(`address: ${JSON.stringify(address)},`)
+      patch_data = patch_data.concat(`password: ${JSON.stringify(password)},`)
+      patch_data = patch_data.concat(`home_hash: ${JSON.stringify(home_hash)},`)
       patch_data = patch_data.concat("}")
-
       let body = await wrapped_request('post', `'/api/homes', ${patch_data}`)
       if (body == null) { return }
       Notify.create(
@@ -190,11 +189,12 @@ export const useUserStore = defineStore('user', {
     },
     async upload_image({ image }) {
       try {
-        let FD = new FormData()
-        FD.append('file', image)
-        let res = await api.post('/api/media', FD)
-        return res.data.doc.id
-      } catch (error) {
+        let FD = new FormData() // инициализация объекта form data для дальнейшего внесения картинки сюда (традиционный метод заливки картинок)
+        FD.append('file', image) // само прикрепление картинки 
+        let res = await api.post('/api/media', FD) // отправка запроса на сохранение на серве (без wrapped request тк есть проблемы из-за eval и перевода 
+                                                  // FormData в формат строки
+        return res.data.doc.id // возвращение айдишника картинки (для использования в качестве внешнего ключа)
+      } catch (error) { // то, что ниже, уже описано во wrapped_request
         console.log(`[UPLOAD IMAGE ERROR] ⬇`);
         console.log(error);
         if (error?.response?.data?.errors[0]?.message) {
@@ -278,10 +278,9 @@ export const useUserStore = defineStore('user', {
         return
       }
     }
-
-
   },
   mutations: {
 
   }
 });
+

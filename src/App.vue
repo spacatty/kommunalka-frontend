@@ -4,18 +4,18 @@
 </template>
 
 <script setup>
-import { date, useQuasar } from 'quasar'
-import { ref } from 'vue'
-import sha1 from 'js-sha1'
+import { date, useQuasar } from "quasar";
+import { ref } from "vue";
+import sha1 from "js-sha1";
 
-const $q = useQuasar()
+const $q = useQuasar();
 
-import { useUserStore } from "stores/user"
-const userStore = useUserStore()
+import { useUserStore } from "stores/user";
+const userStore = useUserStore();
 
-useQuasar().dark.set(true)
+useQuasar().dark.set(true);
 
-userStore.load_state()
+userStore.load_state();
 
 if ($q.capacitor) {
   const getTimeRemaining = (endtime) => {
@@ -30,28 +30,35 @@ if ($q.capacitor) {
       days,
       hours,
       minutes,
-      seconds
+      seconds,
     };
-  }
+  };
 
   (async () => {
-    const LocalNotifications = $q.capacitor.Plugins.LocalNotifications
+    const LocalNotifications = $q.capacitor.Plugins.LocalNotifications;
     console.log(LocalNotifications);
-    let permissions = await LocalNotifications.requestPermissions()
-    if (permissions.display !== "granted") { return }
+    let permissions = await LocalNotifications.requestPermissions();
+    if (permissions.display !== "granted") {
+      return;
+    }
 
     await LocalNotifications.addListener(
-      'localNotificationReceived', async (notification) => {
+      "localNotificationReceived",
+      async (notification) => {
         console.log(notification);
-      })
+      }
+    );
 
     // await LocalNotifications.cancel({ notifications: [{ id: 4 }] })
     console.log(await LocalNotifications.getPending());
 
     for (const task of userStore.user.tasks) {
-      let time_left = getTimeRemaining(new Date(task.deadline))
+      let time_left = getTimeRemaining(new Date(task.deadline));
       if (!task.scheduled_day) {
-        if (time_left.days == 1 || (time_left.days == 0 && time_left.hours > 1)) {
+        if (
+          time_left.days == 1 ||
+          (time_left.days == 0 && time_left.hours > 1)
+        ) {
           await LocalNotifications.schedule({
             notifications: [
               {
@@ -62,11 +69,14 @@ if ($q.capacitor) {
                   at: new Date(Date.now() + 1000),
                   // repeats: true,
                   // every: "minute"
-                }
+                },
               },
-            ]
-          },);
-          await userStore.mark_task_notification_scheduled({ task_id: task.id, day: true })
+            ],
+          });
+          await userStore.mark_task_notification_scheduled({
+            task_id: task.id,
+            day: true,
+          });
         }
       }
       if (!task.scheduled_hour) {
@@ -79,17 +89,18 @@ if ($q.capacitor) {
                 body: `Осталось меньше ЧАСА до выполнения задачи в категории ${task.category.title}`,
                 schedule: {
                   at: new Date(Date.now() + 1000),
-                }
+                },
               },
-            ]
-          },);
-          await userStore.mark_task_notification_scheduled({ task_id: task.id, day: false })
+            ],
+          });
+          await userStore.mark_task_notification_scheduled({
+            task_id: task.id,
+            day: false,
+          });
         }
       }
     }
-
-
-  })()
+  })();
   // $q.capacitor.Plugins.PushNotifications.requestPermissions().then(result => {
   //   if (result.receive === 'granted') {
   //     $q.capacitor.Plugins.PushNotifications.register();
@@ -125,13 +136,12 @@ if ($q.capacitor) {
   //   }
   // );
 }
-
 </script>
 
 <style>
 body,
 #q-app {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   min-height: 100vh;
 }
 </style>

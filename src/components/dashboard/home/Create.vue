@@ -24,8 +24,9 @@ const home_create = async () => {
       title: home_title.value,
       address: home_address.value,
       password: sha1(home_pass.value),
-      hash: sha1(home_address.value)
+      home_hash: sha1(home_address.value)
     }
+
     let file_input = document.querySelector('.file_input').files
     if (file_input.length == 1) {
       home_update_object.image = file_input[0]

@@ -148,30 +148,57 @@ setInterval(() => {
             </div>
           </div>
 
+          <!--
+            Все красные теги по типу QDialog, QCard и тд - это проприетарные готовые компоненты Quasar'a
+            атрибуты типа full-height, persistent и сами теги описывать смысла нет, слишком много текста и мало смысла
+
+            что действительно важно -
+          -->
           <q-dialog full-height full-width v-if="selected_category" v-model="selected_category_toggle" persistent>
+            <!-- v-if это if/else во Vuejs, т.е. рендеринг с условием -->
+            <!-- в нашем случае - если выбрана какая-то категория -->
+            <!-- v-model - это директива привязки данных, тут диалог вяжетка к bool для его показа или скрытия соответственно -->
             <q-card style="min-width: 350px">
               <q-card-section>
                 <div class="flex items-center justify-between my-4">
                   <p class="text-lg text-bold">{{ selected_category.title }}</p>
+                  <!-- выше - вывод заголовока выбранной категории -->
                   <q-btn v-if="userStore.user.id == userStore.user.home.owner.id" round outline color="secondary"
                     @click="add_new_task_toggle = true" icon="add" />
+                  <!-- выше рендеринг с условием: если айди пользователя равен айдишнику владельца дома, то появляется кнопка,
+                    которая даёт возможность добавить новую задачу -->
                 </div>
                 <p class="text-md text-bold">Всего актуальных задач: {{ selected_category?.tasks?.length ?? 0 }}</p>
+                <!-- выше - вывод количества понятно чего, а то, что в фигурных скобках - if/else -->
+                <!-- если у выбранной категории есть таски и можно их кол-во > 0, то выводим их, если нет, то 0 -->
               </q-card-section>
 
               <q-card-section class="q-pt-none">
                 <q-timeline class="mt-8" layout="dense" side="right" color="secondary">
+                  <!-- ниже - отрисовка самих задач из категории  -->
                   <q-timeline-entry v-for="(task, task_index) in category_tasks_state_copy" :key="task.id" side="left">
+                    <!-- с циклом всё понятно, индекс нужен для легкой реализации удаления тасков,
+                    :key нужен для того, чтобы блоки в html не повторялись и рендерились независимо
+                    друг от друга -->
                     <template v-slot:title>
                       <p class="font-semibold text-orange-300">{{ task.responsible.name }}</p>
+                      <!-- вывод ответственного лица -->
                     </template>
                     <template v-slot:subtitle>
                       <p class="font-semibold ">{{ new Date(task.deadline).toLocaleString() }}</p>
+                      <!-- вывод дедлайна в языкозависимом представлении  -->
+                      <!-- те если у чувака на компе стоит пендостанское время, дедлайн будет по пендостанскому времени  -->
                     </template>
                     <div class="item_container flex items-center">
                       <q-checkbox @click="task_status_update(task_index, selected_category_index, selected_category.id)"
                         dark v-model="task.done" class="checkbox_custom" color="teal" />
+                      <!-- тут замудренный чекбокс, который при клике на него вызывает метод, что удаляет задачу -->
+                      <!-- но перед этим спрашивает, а точно ли удалить -->
+                      <!-- в негативного ответа, чекбокс автоматом переключается, тк он привязан к значению task.done -->
+                      <!-- которое изменится в случае окончательного соглашения -->
+                      <!-- и на сервере значение done у этой задачи станет тоже true -->
                       <p class="">{{ task.title }}</p>
+                      <!-- ну вывод заголовка задачи -->
                     </div>
                   </q-timeline-entry>
                 </q-timeline>

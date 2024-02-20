@@ -3,7 +3,8 @@
   "appName": "Коммуналка",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "url": "http://192.168.1.3:9500"
   },
   "plugins": {
     "LocalNotifications": {
